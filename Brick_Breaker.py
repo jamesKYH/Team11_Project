@@ -99,6 +99,14 @@ def create_bricks(rows):
 
 bricks = create_bricks(stages[current_stage])
 
+# 벽돌 색상 설정 (일부 빨간색과 파란색)
+brick_colors = [WHITE] * len(bricks)
+for i in range(0, len(bricks), 10):
+    if i < len(bricks):
+        brick_colors[i] = RED
+    if i + 5 < len(bricks):
+        brick_colors[i + 5] = BLUE
+
 # 목숨 설정
 lives = 3
 
@@ -144,16 +152,23 @@ while running:
             ball_dy = -ball_dy
 
         # 벽돌과 충돌 처리
-        for brick in bricks[:]:
+        for i, brick in enumerate(bricks[:]):
             if ball.colliderect(brick):
                 ball_dy = -ball_dy
                 bricks.remove(brick)
+                brick_colors.pop(i)
 
         # 모든 벽돌을 다 깼을 때 처리
         if not bricks:
             current_stage += 1
             if current_stage < len(stages):
                 bricks = create_bricks(stages[current_stage])
+                brick_colors = [WHITE] * len(bricks)
+                for i in range(0, len(bricks), 10):
+                    if i < len(bricks):
+                        brick_colors[i] = RED
+                    if i + 5 < len(bricks):
+                        brick_colors[i + 5] = BLUE
                 ball.left, ball.top = 390, 540
                 ball_dx = ball_dx * speed_increase_factor
                 ball_dy = -abs(ball_dy * speed_increase_factor)
@@ -174,8 +189,8 @@ while running:
         screen.fill(BLACK)
         pygame.draw.rect(screen, BLUE, paddle)
         pygame.draw.ellipse(screen, RED, ball)
-        for brick in bricks:
-            pygame.draw.rect(screen, WHITE, brick)
+        for brick, color in zip(bricks, brick_colors):
+            pygame.draw.rect(screen, color, brick)
         draw_text(f'Lives: {lives}', instruction_font, WHITE, screen, 60, 20)
         draw_text(f'Stage: {current_stage + 1}', instruction_font, WHITE, screen, 700, 20)
         pygame.display.flip()
