@@ -22,6 +22,11 @@ ball = pygame.Rect(390, 540, 10, 10)
 ball_dx = 3
 ball_dy = -3
 
+# 벽돌 설정
+brick_rows = 5
+brick_cols = 8
+bricks = [pygame.Rect(col * 100, row * 30, 98, 28) for row in range(brick_rows) for col in range(brick_cols)]
+
 # 게임 루프
 running = True
 while running:
@@ -51,10 +56,18 @@ while running:
     if ball.colliderect(paddle):
         ball_dy = -ball_dy
 
+    # 벽돌과 충돌 처리
+    for brick in bricks[:]:
+        if ball.colliderect(brick):
+            ball_dy = -ball_dy
+            bricks.remove(brick)
+
     # 화면 그리기
     screen.fill(BLACK)
     pygame.draw.rect(screen, BLUE, paddle)
     pygame.draw.ellipse(screen, RED, ball)
+    for brick in bricks:
+        pygame.draw.rect(screen, WHITE, brick)
     pygame.display.flip()
 
     # 프레임 속도 조절
@@ -63,3 +76,4 @@ while running:
 # 게임 종료 처리
 pygame.quit()
 sys.exit()
+
