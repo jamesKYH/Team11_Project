@@ -86,6 +86,7 @@ paddle = pygame.Rect(375, 550, 50, 10)
 ball = pygame.Rect(390, 540, 10, 10)
 ball_dx = 3
 ball_dy = -3
+speed_increase_factor = 1.2  # 속도 증가 비율
 
 # 벽돌 설정
 stages = [5, 6, 7]  # 각 단계의 벽돌 행 수
@@ -154,7 +155,8 @@ while running:
             if current_stage < len(stages):
                 bricks = create_bricks(stages[current_stage])
                 ball.left, ball.top = 390, 540
-                ball_dx, ball_dy = 3, -3
+                ball_dx = ball_dx * speed_increase_factor
+                ball_dy = -abs(ball_dy * speed_increase_factor)
             else:
                 show_game_over_screen()
                 running = False
@@ -166,7 +168,7 @@ while running:
                 running = False
             else:
                 ball.left, ball.top = 390, 540
-                ball_dx, ball_dy = 3, -3
+                ball_dx, ball_dy = 3 * (speed_increase_factor ** current_stage), -3 * (speed_increase_factor ** current_stage)
 
         # 화면 그리기
         screen.fill(BLACK)
