@@ -73,6 +73,12 @@ def show_game_over_screen():
         pygame.display.flip()
         pygame.time.delay(500)
 
+def show_pause_screen():
+    screen.fill(BLACK)
+    draw_text('Paused', title_font, next(color_cycle), screen, 400, 200)
+    draw_text('Press P to resume', instruction_font, next(color_cycle), screen, 400, 400)
+    pygame.display.flip()
+
 # 패들 설정
 paddle = pygame.Rect(375, 550, 50, 10)
 
@@ -82,13 +88,21 @@ ball_dx = 3
 ball_dy = -3
 
 # 벽돌 설정
-brick_rows = 5
+stages = [5, 6, 7]  # 각 단계의 벽돌 행 수
+current_stage = 0
 brick_cols = 8
 brick_offset_y = 50  # 벽돌을 아래로 내리는 오프셋 값
-bricks = [pygame.Rect(col * 100, row * 30 + brick_offset_y, 98, 28) for row in range(brick_rows) for col in range(brick_cols)]
+
+def create_bricks(rows):
+    return [pygame.Rect(col * 100, row * 30 + brick_offset_y, 98, 28) for row in range(rows) for col in range(brick_cols)]
+
+bricks = create_bricks(stages[current_stage])
 
 # 목숨 설정
 lives = 3
+
+# 일시정지 상태
+paused = False
 
 # 시작 화면 표시
 show_start_screen()
@@ -100,54 +114,72 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
-    
-    # 패들 이동
-    keys = pygame.key.get_pressed()
-    if keys[pygame.K_LEFT] and paddle.left > 0:
-        paddle.left -= 5
-    if keys[pygame.K_RIGHT] and paddle.right < 800:
-        paddle.right += 5
-    
-    # 공 이동
-    ball.left += ball_dx
-    ball.top += ball_dy
+        if event.type == pygame.KEYUP:
+            if event.key == pygame.K_p:
+                paused = not paused
+                if paused:
+                    show_pause_screen()
 
-    # 벽과 충돌 처리
-    if ball.left <= 0 or ball.right >= 800:
-        ball_dx = -ball_dx
-    if ball.top <= 0:
-        ball_dy = -ball_dy
-    
-    # 패들과 충돌 처리
-    if ball.colliderect(paddle):
-        ball_dy = -ball_dy
+    if not paused:
+        # 패들 이동
+        keys = pygame.key.get_pressed()
+        if keys[pygame.K_LEFT] and paddle.left > 0:
+            paddle.left -= 5
+        if keys[pygame.K_RIGHT] and paddle.right < 800:
+            paddle.right += 5
+        
+        # 공 이동
+        ball.left += ball_dx
+        ball.top += ball_dy
 
-    # 벽돌과 충돌 처리
-    for brick in bricks[:]:
-        if ball.colliderect(brick):
+        # 벽과 충돌 처리
+        if ball.left <= 0 or ball.right >= 800:
+            ball_dx = -ball_dx
+        if ball.top <= 0:
             ball_dy = -ball_dy
-            bricks.remove(brick)
+        
+        # 패들과 충돌 처리
+        if ball.colliderect(paddle):
+            ball_dy = -ball_dy
 
-    # 공이 바닥에 닿았을 때 처리
-    if ball.top >= 600:
-        lives -= 1
-        if lives == 0:
-            running = False
-        else:
-            ball.left, ball.top = 390, 540
-            ball_dx, ball_dy = 3, -3
+        # 벽돌과 충돌 처리
+        for brick in bricks[:]:
+            if ball.colliderect(brick):
+                ball_dy = -ball_dy
+                bricks.remove(brick)
 
-    # 화면 그리기
-    screen.fill(BLACK)
-    pygame.draw.rect(screen, BLUE, paddle)
-    pygame.draw.ellipse(screen, RED, ball)
-    for brick in bricks:
-        pygame.draw.rect(screen, WHITE, brick)
-    draw_text(f'Lives: {lives}', instruction_font, WHITE, screen, 60, 20)
-    pygame.display.flip()
+        # 모든 벽돌을 다 깼을 때 처리
+        if not bricks:
+            current_stage += 1
+            if current_stage < len(stages):
+                bricks = create_bricks(stages[current_stage])
+                ball.left, ball.top = 390, 540
+                ball_dx, ball_dy = 3, -3
+            else:
+                show_game_over_screen()
+                running = False
 
-    # 프레임 속도 조절
-    pygame.time.delay(30)
+        # 공이 바닥에 닿았을 때 처리
+        if ball.top >= 600:
+            lives -= 1
+            if lives == 0:
+                running = False
+            else:
+                ball.left, ball.top = 390, 540
+                ball_dx, ball_dy = 3, -3
+
+        # 화면 그리기
+        screen.fill(BLACK)
+        pygame.draw.rect(screen, BLUE, paddle)
+        pygame.draw.ellipse(screen, RED, ball)
+        for brick in bricks:
+            pygame.draw.rect(screen, WHITE, brick)
+        draw_text(f'Lives: {lives}', instruction_font, WHITE, screen, 60, 20)
+        draw_text(f'Stage: {current_stage + 1}', instruction_font, WHITE, screen, 700, 20)
+        pygame.display.flip()
+
+        # 프레임 속도 조절
+        pygame.time.delay(30)
 
 # 종료 화면 표시
 show_game_over_screen()
