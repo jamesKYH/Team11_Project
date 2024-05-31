@@ -7,7 +7,7 @@ pygame.init()
 
 # 화면 설정
 screen = pygame.display.set_mode((800, 600))
-pygame.display.set_caption("Brick Breaker")
+pygame.display.setCaption("Brick Breaker")
 
 # 색상 정의
 WHITE = (255, 255, 255)
@@ -109,6 +109,7 @@ for i in range(0, len(bricks), 10):
 
 # 목숨 설정
 lives = 3
+score = 0  # 점수 설정
 
 # 일시정지 상태
 paused = False
@@ -156,6 +157,7 @@ while running:
             if ball.colliderect(brick):
                 ball_dy = -ball_dy
                 bricks.remove(brick)
+                score += 10  # 벽돌 맞출 때마다 10점 추가
                 if brick_colors[i] in (RED, BLUE):
                     lives += 1
                 brick_colors.pop(i)
@@ -195,6 +197,7 @@ while running:
             pygame.draw.rect(screen, color, brick)
         draw_text(f'Lives: {lives}', instruction_font, WHITE, screen, 60, 20)
         draw_text(f'Stage: {current_stage + 1}', instruction_font, WHITE, screen, 700, 20)
+        draw_text(f'Score: {score}', instruction_font, WHITE, screen, 400, 20)  # 스코어 표시
         pygame.display.flip()
 
         # 프레임 속도 조절
