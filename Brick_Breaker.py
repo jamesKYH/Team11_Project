@@ -1,3 +1,4 @@
+# src/main.py
 import pygame
 import sys
 
@@ -11,8 +12,8 @@ pygame.display.set_caption("Brick Breaker")
 # 색상 정의
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
-BLUE = (0, 0, 255)
 RED = (255, 0, 0)
+BLUE = (0, 0, 255)
 
 # 패들 설정
 paddle = pygame.Rect(375, 550, 50, 10)
@@ -51,7 +52,7 @@ while running:
         ball_dx = -ball_dx
     if ball.top <= 0:
         ball_dy = -ball_dy
-
+    
     # 패들과 충돌 처리
     if ball.colliderect(paddle):
         ball_dy = -ball_dy
@@ -61,6 +62,10 @@ while running:
         if ball.colliderect(brick):
             ball_dy = -ball_dy
             bricks.remove(brick)
+
+    # 공이 바닥에 닿았을 때 처리
+    if ball.top >= 600:
+        running = False
 
     # 화면 그리기
     screen.fill(BLACK)
