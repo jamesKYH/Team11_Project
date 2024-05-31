@@ -110,6 +110,9 @@ for i in range(0, len(bricks), 10):
 # 목숨 설정
 lives = 3
 
+# 점수 설정
+score = 0
+
 # 일시정지 상태
 paused = False
 
@@ -157,6 +160,7 @@ while running:
                 ball_dy = -ball_dy
                 bricks.remove(brick)
                 brick_colors.pop(i)
+                score += 10  # 벽돌을 맞출 때마다 10점 추가
 
         # 모든 벽돌을 다 깼을 때 처리
         if not bricks:
@@ -193,6 +197,7 @@ while running:
             pygame.draw.rect(screen, color, brick)
         draw_text(f'Lives: {lives}', instruction_font, WHITE, screen, 60, 20)
         draw_text(f'Stage: {current_stage + 1}', instruction_font, WHITE, screen, 700, 20)
+        draw_text(f'Score: {score}', instruction_font, WHITE, screen, 400, 20)  # 점수 표시
         pygame.display.flip()
 
         # 프레임 속도 조절
