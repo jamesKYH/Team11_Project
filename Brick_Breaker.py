@@ -82,10 +82,15 @@ ball_dx = 3
 ball_dy = -3
 
 # 벽돌 설정
-brick_rows = 5
+stages = [5, 6, 7]  # 각 단계의 벽돌 행 수
+current_stage = 0
 brick_cols = 8
 brick_offset_y = 50  # 벽돌을 아래로 내리는 오프셋 값
-bricks = [pygame.Rect(col * 100, row * 30 + brick_offset_y, 98, 28) for row in range(brick_rows) for col in range(brick_cols)]
+
+def create_bricks(rows):
+    return [pygame.Rect(col * 100, row * 30 + brick_offset_y, 98, 28) for row in range(rows) for col in range(brick_cols)]
+
+bricks = create_bricks(stages[current_stage])
 
 # 목숨 설정
 lives = 3
@@ -128,6 +133,17 @@ while running:
             ball_dy = -ball_dy
             bricks.remove(brick)
 
+    # 모든 벽돌을 다 깼을 때 처리
+    if not bricks:
+        current_stage += 1
+        if current_stage < len(stages):
+            bricks = create_bricks(stages[current_stage])
+            ball.left, ball.top = 390, 540
+            ball_dx, ball_dy = 3, -3
+        else:
+            show_game_over_screen()
+            running = False
+
     # 공이 바닥에 닿았을 때 처리
     if ball.top >= 600:
         lives -= 1
@@ -144,6 +160,7 @@ while running:
     for brick in bricks:
         pygame.draw.rect(screen, WHITE, brick)
     draw_text(f'Lives: {lives}', instruction_font, WHITE, screen, 60, 20)
+    draw_text(f'Stage: {current_stage + 1}', instruction_font, WHITE, screen, 700, 20)
     pygame.display.flip()
 
     # 프레임 속도 조절
