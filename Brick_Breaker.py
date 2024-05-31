@@ -123,9 +123,10 @@ while running:
     # 프레임 속도 조절
     pygame.time.delay(30)
 
-# 메인 루프
-while True:
-    game_loop()
-    show_game_over_screen()
+# 종료 화면 표시
+show_game_over_screen()
 
+# 게임 종료 처리
+pygame.quit()
+sys.exit()
  
