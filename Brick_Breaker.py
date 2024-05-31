@@ -86,6 +86,7 @@ paddle = pygame.Rect(375, 550, 50, 10)
 ball = pygame.Rect(390, 540, 10, 10)
 ball_dx = 3
 ball_dy = -3
+speed_increase_factor = 1.2  # 속도 증가 비율
 
 # 벽돌 설정
 stages = [5, 6, 7]  # 각 단계의 벽돌 행 수
@@ -98,8 +99,17 @@ def create_bricks(rows):
 
 bricks = create_bricks(stages[current_stage])
 
+# 벽돌 색상 설정 (일부 빨간색과 파란색)
+brick_colors = [WHITE] * len(bricks)
+for i in range(0, len(bricks), 10):
+    if i < len(bricks):
+        brick_colors[i] = RED
+    if i + 5 < len(bricks):
+        brick_colors[i + 5] = BLUE
+
 # 목숨 설정
 lives = 3
+score = 0  # 점수 설정
 
 # 일시정지 상태
 paused = False
@@ -143,18 +153,29 @@ while running:
             ball_dy = -ball_dy
 
         # 벽돌과 충돌 처리
-        for brick in bricks[:]:
+        for i, brick in enumerate(bricks[:]):
             if ball.colliderect(brick):
                 ball_dy = -ball_dy
                 bricks.remove(brick)
+                score += 10  # 벽돌 맞출 때마다 10점 추가
+                if brick_colors[i] in (RED, BLUE):
+                    lives += 1
+                brick_colors.pop(i)
 
         # 모든 벽돌을 다 깼을 때 처리
         if not bricks:
             current_stage += 1
             if current_stage < len(stages):
                 bricks = create_bricks(stages[current_stage])
+                brick_colors = [WHITE] * len(bricks)
+                for i in range(0, len(bricks), 10):
+                    if i < len(bricks):
+                        brick_colors[i] = RED
+                    if i + 5 < len(bricks):
+                        brick_colors[i + 5] = BLUE
                 ball.left, ball.top = 390, 540
-                ball_dx, ball_dy = 3, -3
+                ball_dx = ball_dx * speed_increase_factor
+                ball_dy = -abs(ball_dy * speed_increase_factor)
             else:
                 show_game_over_screen()
                 running = False
@@ -166,16 +187,17 @@ while running:
                 running = False
             else:
                 ball.left, ball.top = 390, 540
-                ball_dx, ball_dy = 3, -3
+                ball_dx, ball_dy = 3 * (speed_increase_factor ** current_stage), -3 * (speed_increase_factor ** current_stage)
 
         # 화면 그리기
         screen.fill(BLACK)
         pygame.draw.rect(screen, BLUE, paddle)
         pygame.draw.ellipse(screen, RED, ball)
-        for brick in bricks:
-            pygame.draw.rect(screen, WHITE, brick)
+        for brick, color in zip(bricks, brick_colors):
+            pygame.draw.rect(screen, color, brick)
         draw_text(f'Lives: {lives}', instruction_font, WHITE, screen, 60, 20)
         draw_text(f'Stage: {current_stage + 1}', instruction_font, WHITE, screen, 700, 20)
+        draw_text(f'Score: {score}', instruction_font, WHITE, screen, 400, 20)  # 스코어 표시
         pygame.display.flip()
 
         # 프레임 속도 조절
