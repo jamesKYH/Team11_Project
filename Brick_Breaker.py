@@ -1,4 +1,5 @@
-# src/main.py
+#종료화면
+
 import pygame
 import sys
 
@@ -15,6 +16,49 @@ BLACK = (0, 0, 0)
 RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 
+# 폰트 설정
+font = pygame.font.SysFont(None, 55)
+
+def draw_text(text, font, color, surface, x, y):
+    textobj = font.render(text, True, color)
+    textrect = textobj.get_rect()
+    textrect.topleft = (x, y)
+    surface.blit(textobj, textrect)
+
+def show_start_screen():
+    screen.fill(BLACK)
+    draw_text('Brick Breaker', font, WHITE, screen, 280, 250)
+    draw_text('Press any key to start', font, WHITE, screen, 220, 300)
+    pygame.display.flip()
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYUP:
+                waiting = False
+
+
+def show_game_over_screen():
+    screen.fill(BLACK)
+    draw_text('Game Over', font, WHITE, screen, 300, 250)
+    draw_text('Press any key to restart', font, WHITE, screen, 200, 300)
+    pygame.display.flip()
+    waiting = True
+    while waiting:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            if event.type == pygame.KEYUP:
+                waiting = False
+
+
+
+# 시작 화면 표시
+show_start_screen()
+
 # 패들 설정
 paddle = pygame.Rect(375, 550, 50, 10)
 
@@ -28,29 +72,6 @@ brick_rows = 5
 brick_cols = 8
 bricks = [pygame.Rect(col * 100, row * 30, 98, 28) for row in range(brick_rows) for col in range(brick_cols)]
 
-title_font = pygame.font.SysFont('comicsansms', 75)
-instruction_font = pygame.font.SysFont('comicsansms', 35)
-
-def draw_text(text, font, color, surface, x, y):
-    textobj = font.render(text, True, color)
-    textrect = textobj.get_rect(center=(x, y))
-    surface.blit(textobj, textrect)
-
-def show_start_screen():
-    screen.fill(BLUE)
-    draw_text('Brick Breaker', title_font, WHITE, screen, 400, 200)
-    draw_text('Press any key to start', instruction_font, WHITE, screen, 400, 400)
-    pygame.display.flip()
-    waiting = True
-    while waiting:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                pygame.quit()
-                sys.exit()
-            if event.type == pygame.KEYUP:
-                waiting = False
-
-show_start_screen()
 
 # 게임 루프
 running = True
@@ -102,7 +123,9 @@ while running:
     # 프레임 속도 조절
     pygame.time.delay(30)
 
-# 게임 종료 처리
-pygame.quit()
-sys.exit()
+# 메인 루프
+while True:
+    game_loop()
+    show_game_over_screen()
 
+ 
