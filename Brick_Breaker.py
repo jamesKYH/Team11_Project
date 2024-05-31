@@ -160,6 +160,7 @@ while running:
     for brick in bricks:
         pygame.draw.rect(screen, WHITE, brick)
     draw_text(f'Lives: {lives}', instruction_font, WHITE, screen, 60, 20)
+    draw_text(f'Stage: {current_stage + 1}', instruction_font, WHITE, screen, 700, 20)
     pygame.display.flip()
 
     # 프레임 속도 조절
